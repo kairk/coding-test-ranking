@@ -1,8 +1,8 @@
-package com.idealista.infrastructure.api;
+package com.idealista.ranking.model.api.response;
 
 import java.util.List;
 
-public class PublicAd {
+public class PublicAdResponse {
 
     private Integer id;
     private String typology;

@@ -1,5 +1,7 @@
-package com.idealista.infrastructure.persistence;
+package com.idealista.ranking.repository;
 
+import com.idealista.ranking.model.repository.AdVO;
+import com.idealista.ranking.model.repository.PictureVO;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

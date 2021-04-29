@@ -1,9 +1,9 @@
-package com.idealista.infrastructure.api;
+package com.idealista.ranking.model.api.response;
 
 import java.util.Date;
 import java.util.List;
 
-public class QualityAd {
+public class QualityAdResponse {
 
     private Integer id;
     private String typology;
