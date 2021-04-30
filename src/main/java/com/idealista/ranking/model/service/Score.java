@@ -19,6 +19,10 @@ public class Score {
     @Builder.Default
     private final Integer current = 0;
 
+    public Score add(Score score) {
+        return this.add(score.getCurrent());
+    }
+
     public Score add(Integer quantity) {
         Integer result;
         if (current + quantity <= MAX) {
@@ -29,6 +33,10 @@ public class Score {
         }
 
         return this.toBuilder().current(result).build();
+    }
+
+    public Score subtract(Score score) {
+        return this.subtract(score.getCurrent());
     }
 
     public Score subtract(Integer quantity) {
