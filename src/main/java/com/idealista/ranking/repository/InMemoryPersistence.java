@@ -46,7 +46,7 @@ public class InMemoryPersistence {
         return ads.stream().filter(a -> a.getId().equals(id)).findAny();
     }
 
-    public Collection<AdVO> getAdsIn(Collection<Integer> ids) {
+    public List<AdVO> getAdsIn(List<Integer> ids) {
         return ads.stream().filter(a -> ids.contains(a.getId())).collect(Collectors.toList());
     }
 
@@ -70,7 +70,7 @@ public class InMemoryPersistence {
         return pictures.stream().filter(a -> a.getId().equals(id)).findAny();
     }
 
-    public Collection<PictureVO> getPicturesIn(Collection<Integer> ids) {
+    public List<PictureVO> getPicturesIn(List<Integer> ids) {
         return pictures.stream().filter(a -> ids.contains(a.getId())).collect(Collectors.toList());
     }
 

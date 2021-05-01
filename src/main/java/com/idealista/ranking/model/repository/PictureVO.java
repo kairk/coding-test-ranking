@@ -7,6 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
+@ToString
 public class PictureVO {
 
     private Integer id;

@@ -8,11 +8,11 @@ public enum RuleType {
     SCORE,
     UNKNOWN;
 
-    public static Optional<RuleType> fromString(String quality) {
+    public static Optional<RuleType> fromString(String type) {
         Optional<RuleType> result = Optional.empty();
         List<RuleType> values = Arrays.asList(RuleType.values());
-        if (quality != null) {
-            result = values.stream().filter(a -> a.name().equals(quality.toUpperCase())).findAny();
+        if (type != null) {
+            result = values.stream().filter(a -> a.name().equals(type.toUpperCase())).findAny();
         }
 
         return result;

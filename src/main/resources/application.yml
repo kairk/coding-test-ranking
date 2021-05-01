@@ -14,12 +14,7 @@ service:
       flatDescriptionLowerBound: 20
       flatDescriptionUpperBound: 50
       chaletDescriptionLowerBound: 50
-      wordOccurrence:
-        - Atico
-        - Luminoso
-        - Nuevo
-        - Céntrico
-        - Reformado
+      wordOccurrence: Atico, Luminoso, Nuevo, Céntrico, Reformado
   score:
     max: 100
     min: 0

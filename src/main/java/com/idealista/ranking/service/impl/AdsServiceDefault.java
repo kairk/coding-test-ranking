@@ -48,7 +48,7 @@ public class AdsServiceDefault implements AdsService {
     @Override
     public Collection<Picture> getPicturesIn(Collection<Integer> picturesIds) {
         return (picturesIds == null || picturesIds.isEmpty()) ? Collections.emptyList() :
-                repository.getPicturesIn(picturesIds).stream()
+                repository.getPicturesIn(new ArrayList<>(picturesIds)).stream()
                         .map(advertisementMapper::pictureRepositoryToService)
                         .collect(Collectors.toList());
     }

@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
+@ToString
 public class AdVO {
 
     private Integer id;

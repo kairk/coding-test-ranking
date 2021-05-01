@@ -36,7 +36,7 @@ public interface AdvertisementMapper {
         return Score.builder()
                 .max(scoreConfig.getMax())
                 .min(scoreConfig.getMin())
-                .current(currentScore)
+                .current(currentScore != null ? currentScore : 0)
                 .build();
     }
 

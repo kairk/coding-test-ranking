@@ -10,11 +10,11 @@ public enum AdvertisementTypology {
     GARAGE,
     UNKNOWN;
 
-    public static Optional<AdvertisementTypology> fromString(String quality) {
+    public static Optional<AdvertisementTypology> fromString(String typology) {
         Optional<AdvertisementTypology> result = Optional.empty();
         List<AdvertisementTypology> values = Arrays.asList(AdvertisementTypology.values());
-        if (quality != null) {
-            result = values.stream().filter(a -> a.name().equals(quality.toUpperCase())).findAny();
+        if (typology != null) {
+            result = values.stream().filter(a -> a.name().equals(typology.toUpperCase())).findAny();
         }
 
         return result;
