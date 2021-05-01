@@ -1,13 +1,16 @@
 package com.idealista.ranking.common.service.executor;
 
+import com.idealista.ranking.common.service.rule.BaseRule;
 import com.idealista.ranking.exception.AdsServiceException;
 import com.idealista.ranking.model.service.Advertisement;
-import com.idealista.ranking.common.service.rule.BaseRule;
 
 import java.util.Collection;
 
 /**
  * Execute a Collection of rules into an Advertisement and combines the result into a expected type T.
+ *
+ * @param <T> Type of the final result
+ * @param <U> Type of rules that are going to be applied
  */
 public abstract class RuleExecutor<T, U extends BaseRule> {
     // Creating a final variable with the rules and injecting it in the exposed method
