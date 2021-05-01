@@ -11,8 +11,8 @@ public class ScoreTest {
         //Given
         Integer increment = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(0)
                 .build();
         //When
@@ -27,8 +27,8 @@ public class ScoreTest {
         //Given
         Integer increment = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(0)
                 .build();
         //When
@@ -43,15 +43,15 @@ public class ScoreTest {
         //Given
         Integer increment = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(99)
                 .build();
         //When
         Score result = score.add(increment);
 
         //Then
-        assertEquals(score.getMAX(), result.getCurrent(), 0.001);
+        assertEquals(score.getMax(), result.getCurrent(), 0.001);
     }
 
     @Test
@@ -59,15 +59,15 @@ public class ScoreTest {
         //Given
         Integer increment = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(99)
                 .build();
         //When
         Score result = score.add(Score.builder().current(increment).build());
 
         //Then
-        assertEquals(score.getMAX(), result.getCurrent(), 0.001);
+        assertEquals(score.getMax(), result.getCurrent(), 0.001);
     }
 
     @Test
@@ -75,8 +75,8 @@ public class ScoreTest {
         //Given
         Integer decrement = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(50)
                 .build();
         //When
@@ -91,8 +91,8 @@ public class ScoreTest {
         //Given
         Integer decrement = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(50)
                 .build();
         //When
@@ -107,15 +107,15 @@ public class ScoreTest {
         //Given
         Integer decrement = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(1)
                 .build();
         //When
         Score result = score.subtract(decrement);
 
         //Then
-        assertEquals(score.getMIN(), result.getCurrent(), 0.001);
+        assertEquals(score.getMin(), result.getCurrent(), 0.001);
     }
 
     @Test
@@ -123,15 +123,15 @@ public class ScoreTest {
         //Given
         Integer decrement = 10;
         Score score = Score.builder()
-                .MAX(100)
-                .MIN(0)
+                .max(100)
+                .min(0)
                 .current(1)
                 .build();
         //When
         Score result = score.subtract(Score.builder().current(decrement).build());
 
         //Then
-        assertEquals(score.getMIN(), result.getCurrent(), 0.001);
+        assertEquals(score.getMin(), result.getCurrent(), 0.001);
     }
 
 

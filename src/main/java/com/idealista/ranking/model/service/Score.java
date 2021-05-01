@@ -13,9 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 @EqualsAndHashCode
 public class Score {
     @Builder.Default
-    private final Integer MAX = 100;
+    private final Integer max = 100;
     @Builder.Default
-    private final Integer MIN = 0;
+    private final Integer min = 0;
     @Builder.Default
     private final Integer current = 0;
 
@@ -25,11 +25,11 @@ public class Score {
 
     public Score add(Integer quantity) {
         Integer result;
-        if (current + quantity <= MAX) {
+        if (current + quantity <= max) {
             result = current + quantity;
         } else {
-            result = getMAX();
-            log.warn("couldn't add: " + quantity + " to current score: " + current + ", maximum exceeded: " + MAX);
+            result = getMax();
+            log.warn("couldn't add: " + quantity + " to current score: " + current + ", maximum exceeded: " + max);
         }
 
         return this.toBuilder().current(result).build();
@@ -41,11 +41,11 @@ public class Score {
 
     public Score subtract(Integer quantity) {
         Integer result;
-        if (current - quantity >= MIN) {
+        if (current - quantity >= min) {
             result = current - quantity;
         } else {
-            result = getMIN();
-            log.warn("couldn't subtract: " + quantity + " to current score: " + current + ", minimum is inferior: " + MIN);
+            result = getMin();
+            log.warn("couldn't subtract: " + quantity + " to current score: " + current + ", minimum is inferior: " + min);
         }
 
         return this.toBuilder().current(result).build();
@@ -56,6 +56,6 @@ public class Score {
      * returns a new instance of Score with its current value set to the actual minimum
      */
     public Score resetScore() {
-        return this.toBuilder().current(getMIN()).build();
+        return this.toBuilder().current(getMin()).build();
     }
 }

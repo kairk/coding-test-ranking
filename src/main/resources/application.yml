@@ -20,3 +20,6 @@ service:
         - Nuevo
         - Céntrico
         - Reformado
+  score:
+    max: 100
+    min: 0
