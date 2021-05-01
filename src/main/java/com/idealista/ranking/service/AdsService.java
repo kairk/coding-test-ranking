@@ -4,7 +4,6 @@ import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Picture;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface AdsService {
     /**
@@ -12,9 +11,9 @@ public interface AdsService {
      */
     Collection<Advertisement> getAllAds();
 
-    List<Picture> getPicturesIn(List<Integer> picturesIds);
+    Collection<Picture> getPicturesIn(Collection<Integer> picturesIds);
 
-    void upsertAdvertisements(List<Advertisement> advertisements);
+    void upsertAdvertisements(Collection<Advertisement> advertisements);
 
-    void upsertPictures(List<Picture> pictures);
+    void upsertPictures(Collection<Picture> pictures);
 }

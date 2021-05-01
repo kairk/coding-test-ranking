@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,14 +39,14 @@ public class AdsServiceDefault implements AdsService {
 
         return repositoryAds.stream()
                 .map(repoAd -> advertisementMapper.adRepositoryToService(repoAd).toBuilder()
-                        .pictures(getPicturesIn(repoAd.getPictures()))
+                        .pictures(new ArrayList<>(getPicturesIn(repoAd.getPictures())))
                         .score(advertisementMapper.scoreRepositoryToService(scoreConfig, repoAd.getScore()))
                         .build())
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Picture> getPicturesIn(List<Integer> picturesIds) {
+    public Collection<Picture> getPicturesIn(Collection<Integer> picturesIds) {
         return (picturesIds == null || picturesIds.isEmpty()) ? Collections.emptyList() :
                 repository.getPicturesIn(picturesIds).stream()
                         .map(advertisementMapper::pictureRepositoryToService)
@@ -53,7 +54,7 @@ public class AdsServiceDefault implements AdsService {
     }
 
     @Override
-    public void upsertAdvertisements(List<Advertisement> advertisements) {
+    public void upsertAdvertisements(Collection<Advertisement> advertisements) {
         advertisements.stream()
                 .map(ad -> {
                     upsertPictures(ad.getPictures());
@@ -63,7 +64,7 @@ public class AdsServiceDefault implements AdsService {
     }
 
     @Override
-    public void upsertPictures(List<Picture> pictures) {
+    public void upsertPictures(Collection<Picture> pictures) {
         pictures.stream()
                 .map(advertisementMapper::pictureServiceToRepository)
                 .forEach(repository::upsertPicture);
