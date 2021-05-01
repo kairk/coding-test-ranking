@@ -2,14 +2,15 @@ package com.idealista.ranking.repository;
 
 import com.idealista.ranking.model.repository.AdVO;
 import com.idealista.ranking.model.repository.PictureVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Repository
+@Slf4j
 public class InMemoryPersistence {
 
     private List<AdVO> ads;
@@ -37,5 +38,63 @@ public class InMemoryPersistence {
         pictures.add(new PictureVO(8, "http://www.idealista.com/pictures/8", "HD"));
     }
 
-    //TODO crea los métodos que necesites
+    public List<AdVO> getAllAds() {
+        return ads;
+    }
+
+    public Optional<AdVO> getAdById(Integer id) {
+        return ads.stream().filter(a -> a.getId().equals(id)).findAny();
+    }
+
+    public List<AdVO> getAdsIn(List<Integer> ids) {
+        return ads.stream().filter(a -> ids.contains(a.getId())).collect(Collectors.toList());
+    }
+
+    public void upsertAd(AdVO ad) {
+        int index = getAdIndexById(ad.getId(), ads);
+
+        if (index != -1) {
+            log.info("Found ad: " + ad + " in position:" + index + ", updating...");
+            ads.set(index, ad);
+        } else {
+            log.info("Ad: " + ad + " not found, inserting...");
+            ads.add(ad);
+        }
+    }
+
+    public List<PictureVO> getAllPictures() {
+        return pictures;
+    }
+
+    public Optional<PictureVO> getPictureById(Integer id) {
+        return pictures.stream().filter(a -> a.getId().equals(id)).findAny();
+    }
+
+    public List<PictureVO> getPicturesIn(List<Integer> ids) {
+        return pictures.stream().filter(a -> ids.contains(a.getId())).collect(Collectors.toList());
+    }
+
+    public void upsertPicture(PictureVO pictureVO) {
+        int index = getPicIndexById(pictureVO.getId(), pictures);
+
+        if (index != -1) {
+            log.info("Found picture: " + pictureVO + " in position:" + index + ", updating...");
+            pictures.set(index, pictureVO);
+        } else {
+            log.info("Picture: " + pictureVO + " not found, inserting...");
+            pictures.add(pictureVO);
+        }
+    }
+
+    private Integer getAdIndexById(Integer id, List<AdVO> ads) {
+        return IntStream.range(0, ads.size())
+                .filter(i -> ads.get(i).getId().equals(id))
+                .findFirst().orElse(-1);
+    }
+
+    private Integer getPicIndexById(Integer id, List<PictureVO> pictures) {
+        return IntStream.range(0, pictures.size())
+                .filter(i -> pictures.get(i).getId().equals(id))
+                .findFirst().orElse(-1);
+    }
 }
