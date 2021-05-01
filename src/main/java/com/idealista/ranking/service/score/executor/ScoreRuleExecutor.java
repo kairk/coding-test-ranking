@@ -16,7 +16,7 @@ public class ScoreRuleExecutor extends RuleExecutor<Score, BaseScoreRule> {
     }
 
     @Override
-    public Score executeRules(Collection<BaseScoreRule> rules, Advertisement ad) {
+    protected Score executeRules(Collection<BaseScoreRule> rules, Advertisement ad) {
         log.info("Executing rules for: " + ad);
         Score identityVal = ad.getScore().resetScore();
 

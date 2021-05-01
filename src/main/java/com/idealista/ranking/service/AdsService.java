@@ -13,4 +13,8 @@ public interface AdsService {
     Collection<Advertisement> getAllAds();
 
     List<Picture> getPicturesIn(List<Integer> picturesIds);
+
+    void upsertAdvertisements(List<Advertisement> advertisements);
+
+    void upsertPictures(List<Picture> pictures);
 }

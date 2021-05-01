@@ -6,7 +6,7 @@ import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Picture;
 import com.idealista.ranking.repository.InMemoryPersistence;
 import com.idealista.ranking.service.AdsService;
-import com.idealista.ranking.service.mapper.AdsMapper;
+import com.idealista.ranking.service.mapper.AdvertisementMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,16 +18,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+//TODO: Picture and Ads should be managed by different services
 public class AdsServiceDefault implements AdsService {
 
     private final InMemoryPersistence repository;
-    private final AdsMapper adsMapper;
+    private final AdvertisementMapper advertisementMapper;
     private final ScoreConfig scoreConfig;
 
     @Autowired
-    public AdsServiceDefault(InMemoryPersistence repository, AdsMapper adsMapper, ScoreConfig scoreConfig) {
+    public AdsServiceDefault(InMemoryPersistence repository, AdvertisementMapper advertisementMapper, ScoreConfig scoreConfig) {
         this.repository = repository;
-        this.adsMapper = adsMapper;
+        this.advertisementMapper = advertisementMapper;
         this.scoreConfig = scoreConfig;
     }
 
@@ -36,9 +37,9 @@ public class AdsServiceDefault implements AdsService {
         List<AdVO> repositoryAds = repository.getAllAds();
 
         return repositoryAds.stream()
-                .map(repoAd -> adsMapper.adRepositoryToService(repoAd).toBuilder()
+                .map(repoAd -> advertisementMapper.adRepositoryToService(repoAd).toBuilder()
                         .pictures(getPicturesIn(repoAd.getPictures()))
-                        .score(adsMapper.scoreRepositoryToService(scoreConfig, repoAd.getScore()))
+                        .score(advertisementMapper.scoreRepositoryToService(scoreConfig, repoAd.getScore()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -47,7 +48,24 @@ public class AdsServiceDefault implements AdsService {
     public List<Picture> getPicturesIn(List<Integer> picturesIds) {
         return (picturesIds == null || picturesIds.isEmpty()) ? Collections.emptyList() :
                 repository.getPicturesIn(picturesIds).stream()
-                        .map(adsMapper::pictureRepositoryToService)
+                        .map(advertisementMapper::pictureRepositoryToService)
                         .collect(Collectors.toList());
+    }
+
+    @Override
+    public void upsertAdvertisements(List<Advertisement> advertisements) {
+        advertisements.stream()
+                .map(ad -> {
+                    upsertPictures(ad.getPictures());
+                    return advertisementMapper.adServiceToRepository(ad);
+                })
+                .forEach(repository::upsertAd);
+    }
+
+    @Override
+    public void upsertPictures(List<Picture> pictures) {
+        pictures.stream()
+                .map(advertisementMapper::pictureServiceToRepository)
+                .forEach(repository::upsertPicture);
     }
 }
