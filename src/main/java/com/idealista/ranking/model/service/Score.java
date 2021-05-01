@@ -51,4 +51,11 @@ public class Score {
         return this.toBuilder().current(result).build();
 
     }
+
+    /**
+     * returns a new instance of Score with its current value set to the actual minimum
+     */
+    public Score resetScore() {
+        return this.toBuilder().current(getMIN()).build();
+    }
 }

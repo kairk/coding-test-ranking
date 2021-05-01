@@ -19,7 +19,7 @@ public class HasDescriptionRule extends BaseScoreRule {
     }
 
     @Override
-    protected Score updateScore(Advertisement ad) {
+    protected Score updateResult(Advertisement ad) {
         return ad.getScore().add(RULE_INCREMENT_VALUE);
     }
 }

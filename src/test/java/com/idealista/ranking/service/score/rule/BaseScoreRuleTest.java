@@ -1,4 +1,4 @@
-package com.idealista.ranking.service.score;
+package com.idealista.ranking.service.score.rule;
 
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Score;
@@ -56,7 +56,7 @@ public class BaseScoreRuleTest {
         }
 
         @Override
-        protected Score updateScore(Advertisement ad) {
+        protected Score updateResult(Advertisement ad) {
             return Score.builder().current(ad.getScore().getCurrent() + 10).build();
         }
     }

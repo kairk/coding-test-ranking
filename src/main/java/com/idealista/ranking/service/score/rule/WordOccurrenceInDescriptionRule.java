@@ -25,7 +25,7 @@ public class WordOccurrenceInDescriptionRule extends BaseScoreRule {
     }
 
     @Override
-    protected Score updateScore(Advertisement ad) {
+    protected Score updateResult(Advertisement ad) {
 
         Integer scorePerWord = Math.toIntExact(
                 RELEVANT_WORDS.stream().map(String::toUpperCase).filter(ad.getDescription().toUpperCase()::contains).count())

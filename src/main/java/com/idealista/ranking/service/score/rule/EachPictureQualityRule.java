@@ -22,7 +22,7 @@ public class EachPictureQualityRule extends BaseScoreRule {
     }
 
     @Override
-    protected Score updateScore(Advertisement ad) {
+    protected Score updateResult(Advertisement ad) {
         int totalPicValue = ad.getPictures().stream().mapToInt(pic -> {
             Integer result;
 

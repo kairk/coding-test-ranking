@@ -1,4 +1,4 @@
-package com.idealista.ranking.service.score;
+package com.idealista.ranking.service.score.rule;
 
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.service.score.rule.WordOccurrenceInDescriptionRule;

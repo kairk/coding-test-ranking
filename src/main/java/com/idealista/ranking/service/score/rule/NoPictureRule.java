@@ -19,7 +19,7 @@ public class NoPictureRule extends BaseScoreRule {
     }
 
     @Override
-    protected Score updateScore(Advertisement ad) {
+    protected Score updateResult(Advertisement ad) {
         return ad.getScore().subtract(RULE_DECREMENT_VALUE);
     }
 }

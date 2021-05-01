@@ -27,7 +27,7 @@ public class FlatDescriptionLengthRule extends BaseScoreRule {
     }
 
     @Override
-    protected Score updateScore(Advertisement ad) {
+    protected Score updateResult(Advertisement ad) {
         int descLength = ad.getDescription().length();
         int increment;
 
