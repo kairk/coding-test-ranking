@@ -16,4 +16,6 @@ public interface AdsService {
     void upsertAdvertisements(Collection<Advertisement> advertisements);
 
     void upsertPictures(Collection<Picture> pictures);
+
+    Collection<Advertisement> getAdsFilterByScore(Integer minScore);
 }

@@ -2,8 +2,12 @@ package com.idealista.ranking.business;
 
 import com.idealista.ranking.business.impl.AdsBusinessDefault;
 import com.idealista.ranking.common.service.executor.RuleExecutor;
+import com.idealista.ranking.configuration.GenericConfig;
+import com.idealista.ranking.exception.AdsNoContentException;
 import com.idealista.ranking.exception.AdsServiceException;
 import com.idealista.ranking.exception.GenericAdsException;
+import com.idealista.ranking.mapper.AdvertisementServiceMapper;
+import com.idealista.ranking.model.api.response.PublicAdResponse;
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Score;
 import com.idealista.ranking.model.service.enumeration.RuleType;
@@ -17,15 +21,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.isA;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.*;
 
@@ -38,10 +44,15 @@ public class AdsBusinessDefaultTest {
     @Mock
     AdsService service;
 
+    @Spy
+    AdvertisementServiceMapper mapper = Mappers.getMapper(AdvertisementServiceMapper.class);
+
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
-    private Integer increment = 10;
+    private GenericConfig config = GenericConfig.builder().minScorePublicAds(40).build();
+
+    private final Integer increment = 10;
 
     @Test
     public void calculateScore_OK() throws AdsServiceException {
@@ -64,7 +75,7 @@ public class AdsBusinessDefaultTest {
         doNothing().when(service).upsertAdvertisements(anyCollection());
         doReturn(ruleExecutor).when(ruleExecutorFactory).create(eq(RuleType.SCORE));
 
-        AdsBusinessDefault business = new AdsBusinessDefault(ruleExecutorFactory, service);
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
         //When
         business.calculateScore();
@@ -83,7 +94,7 @@ public class AdsBusinessDefaultTest {
 
         doReturn(ruleExecutor).when(ruleExecutorFactory).create(eq(RuleType.SCORE));
 
-        AdsBusinessDefault business = new AdsBusinessDefault(ruleExecutorFactory, service);
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
         //When
         business.calculateScore();
@@ -100,12 +111,66 @@ public class AdsBusinessDefaultTest {
 
         doThrow(new AdsServiceException("test error")).when(ruleExecutorFactory).create(eq(RuleType.SCORE));
 
-        AdsBusinessDefault business = new AdsBusinessDefault(ruleExecutorFactory, service);
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
         //When
         business.calculateScore();
 
         //Then exception is thrown
+    }
+
+    @Test
+    public void getPublicListing_OK() throws AdsServiceException {
+        //Given
+        Score score = Score.builder().current(40).build();
+        int pageSize = 5;
+
+        List<Advertisement> ads = generateAdList(pageSize * 2);
+
+        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds());
+
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
+
+        //When
+        List<PublicAdResponse> result = business.getPublicListing(1, pageSize);
+
+        //Then
+        assertEquals(pageSize, result.size());
+        verify(service, times(1)).getAdsFilterByScore(config.getMinScorePublicAds());
+        verify(mapper, times(pageSize)).adServiceToResponseMapper(any(Advertisement.class));
+
+    }
+
+    @Test
+    public void getPublicListing_onEmptyResult_KO() throws AdsServiceException {
+        //Given
+        exceptionRule.expect(isA(AdsNoContentException.class));
+        exceptionRule.expectMessage("There are no public Ads matching criteria");
+
+        int pageSize = 5;
+
+        List<Advertisement> ads = new ArrayList<>();
+
+        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds());
+
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
+
+        //When
+        List<PublicAdResponse> result = business.getPublicListing(1, pageSize);
+
+        //Then exception is thrown
+    }
+
+    private List<PublicAdResponse> generatePublicAdList(Integer id) {
+        return IntStream.range(0, id).mapToObj(cId -> PublicAdResponse.builder().id(cId).build())
+                .collect(Collectors.toList());
+    }
+
+    private List<Advertisement> generateAdList(Integer id) {
+        return IntStream.range(0, id).mapToObj(cId -> Advertisement.builder()
+                .id(cId).score(Score.builder().current(10 * cId).build())
+                .build())
+                .collect(Collectors.toList());
     }
 
 

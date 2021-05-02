@@ -1,4 +1,4 @@
-package com.idealista.ranking.service.mapper;
+package com.idealista.ranking.mapper;
 
 import com.idealista.ranking.configuration.ScoreConfig;
 import com.idealista.ranking.model.repository.AdVO;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper
-public interface AdvertisementMapper {
+public interface AdvertisementRepositoryMapper {
 
     @Mapping(target = "pictures", ignore = true)
     @Mapping(target = "score", ignore = true)
@@ -25,12 +25,6 @@ public interface AdvertisementMapper {
 
     @Mapping(source = "quality", target = "quality", qualifiedByName = "qualityMapper")
     Picture pictureRepositoryToService(PictureVO data);
-
-    @Mapping(target = "pictures", source = "pictures", qualifiedByName = "pictureToIntMapper")
-    @Mapping(target = "score", source = "score", qualifiedByName = "scoreToIntMapper")
-    AdVO adServiceToRepository(Advertisement ad);
-
-    PictureVO pictureServiceToRepository(Picture pic);
 
     default Score scoreRepositoryToService(ScoreConfig scoreConfig, Integer currentScore) {
         return Score.builder()
@@ -49,15 +43,5 @@ public interface AdvertisementMapper {
     default PictureQuality qualityRepositoryToService(String quality) {
         return PictureQuality.fromString(quality).orElse(PictureQuality.UNKNOWN);
 
-    }
-
-    @Named("pictureToIntMapper")
-    default List<Integer> pictureToInt(List<Picture> pictures) {
-        return pictures.stream().map(Picture::getId).collect(Collectors.toList());
-    }
-
-    @Named("scoreToIntMapper")
-    default Integer scoreToInt(Score score) {
-        return score.getCurrent();
     }
 }

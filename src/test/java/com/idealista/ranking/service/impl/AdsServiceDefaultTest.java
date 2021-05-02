@@ -1,6 +1,8 @@
 package com.idealista.ranking.service.impl;
 
 import com.idealista.ranking.configuration.ScoreConfig;
+import com.idealista.ranking.mapper.AdvertisementRepositoryMapper;
+import com.idealista.ranking.mapper.AdvertisementServiceMapper;
 import com.idealista.ranking.model.repository.AdVO;
 import com.idealista.ranking.model.repository.PictureVO;
 import com.idealista.ranking.model.service.Advertisement;
@@ -8,7 +10,6 @@ import com.idealista.ranking.model.service.Picture;
 import com.idealista.ranking.model.service.Score;
 import com.idealista.ranking.model.service.enumeration.AdvertisementTypology;
 import com.idealista.ranking.repository.InMemoryPersistence;
-import com.idealista.ranking.service.mapper.AdvertisementMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mapstruct.factory.Mappers;
@@ -29,7 +30,10 @@ public class AdsServiceDefaultTest {
     InMemoryPersistence repository;
 
     @Spy
-    AdvertisementMapper advertisementMapper = Mappers.getMapper(AdvertisementMapper.class);
+    AdvertisementServiceMapper serviceMapper = Mappers.getMapper(AdvertisementServiceMapper.class);
+    @Spy
+
+    AdvertisementRepositoryMapper repositoryMapper = Mappers.getMapper(AdvertisementRepositoryMapper.class);
 
     ScoreConfig scoreConfig = ScoreConfig.builder().max(100).min(0).build();
 
@@ -48,7 +52,7 @@ public class AdsServiceDefaultTest {
 
         when(repository.getAllAds()).thenReturn(repositoryAds);
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         Collection<Advertisement> result = adsService.getAllAds();
@@ -64,13 +68,13 @@ public class AdsServiceDefaultTest {
 
         when(repository.getAllAds()).thenReturn(repositoryAds);
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         Collection<Advertisement> result = adsService.getAllAds();
 
         //Then
-        verify(advertisementMapper, times(repositoryAds.size())).adRepositoryToService(any(AdVO.class));
+        verify(repositoryMapper, times(repositoryAds.size())).adRepositoryToService(any(AdVO.class));
         assertTrue(result.stream().allMatch(ad ->
                 ad.getScore().getMax().equals(scoreConfig.getMax()) && ad.getScore().getMin().equals(scoreConfig.getMin())));
     }
@@ -82,14 +86,14 @@ public class AdsServiceDefaultTest {
         List<Integer> ids = Arrays.asList(1, 2, 3);
         when(repository.getPicturesIn(ids)).thenReturn(repositoryPics);
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         adsService.getPicturesIn(ids);
 
         //Then
-        verify(advertisementMapper, times(repositoryPics.size())).pictureRepositoryToService(any(PictureVO.class));
-        verify(advertisementMapper, times(repositoryPics.size())).qualityRepositoryToService(any(String.class));
+        verify(repositoryMapper, times(repositoryPics.size())).pictureRepositoryToService(any(PictureVO.class));
+        verify(repositoryMapper, times(repositoryPics.size())).qualityRepositoryToService(any(String.class));
 
     }
 
@@ -98,14 +102,14 @@ public class AdsServiceDefaultTest {
         //Given
         List<Integer> ids = new ArrayList<>();
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         adsService.getPicturesIn(ids);
 
         //Then
-        verify(advertisementMapper, never()).pictureRepositoryToService(any(PictureVO.class));
-        verify(advertisementMapper, never()).qualityRepositoryToService(any(String.class));
+        verify(repositoryMapper, never()).pictureRepositoryToService(any(PictureVO.class));
+        verify(repositoryMapper, never()).qualityRepositoryToService(any(String.class));
 
     }
 
@@ -118,13 +122,13 @@ public class AdsServiceDefaultTest {
                 Advertisement.builder().id(3).build()
         );
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         adsService.upsertAdvertisements(advertisements);
 
         //Then
-        verify(advertisementMapper, times(advertisements.size())).adServiceToRepository(any(Advertisement.class));
+        verify(serviceMapper, times(advertisements.size())).adServiceToRepository(any(Advertisement.class));
         verify(repository, times(advertisements.size())).upsertAd(any(AdVO.class));
 
     }
@@ -138,13 +142,13 @@ public class AdsServiceDefaultTest {
                 Picture.builder().id(3).build()
         );
 
-        AdsServiceDefault adsService = new AdsServiceDefault(repository, advertisementMapper, scoreConfig);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
         adsService.upsertPictures(pictures);
 
         //Then
-        verify(advertisementMapper, times(pictures.size())).pictureServiceToRepository(any(Picture.class));
+        verify(serviceMapper, times(pictures.size())).pictureServiceToRepository(any(Picture.class));
         verify(repository, times(pictures.size())).upsertPicture(any(PictureVO.class));
 
     }
