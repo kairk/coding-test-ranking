@@ -11,9 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -47,16 +45,24 @@ public class AdsController {
         log.info("Scores for all advertisements calculated correctly");
         return ResponseEntity.ok().build();
     }
+
+        @GetMapping(path = "/public-listing", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Returns a paginated list of Ads filtered by quality")
+    @ApiResponses({
+            @ApiResponse(code = HttpServletResponse.SC_OK, message = "Advertisements found"),
+            @ApiResponse(code = HttpServletResponse.SC_NO_CONTENT, message = "No advertisements found that match criteria"),
+            @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Internal error processing request")
+    }
+    )
+    public ResponseEntity<List<PublicAdResponse>> publicListing(
+            @RequestParam("page") int page, @RequestParam("size") int size) {
+        return ResponseEntity.ok(adsBusiness.getPublicListing(page, size));
+    }
+
 /*
 Yo como encargado de calidad quiero que los usuarios no vean anuncios irrelevantes para que el usuario siempre vea contenido de calidad en idealista. Un anuncio se considera irrelevante si tiene una puntación inferior a 40 puntos.
  Yo como usuario de idealista quiero poder ver los anuncios ordenados de mejor a peor para encontrar fácilmente mi vivienda.
  */
-
-    //TODO añade url del endpoint
-    public ResponseEntity<List<PublicAdResponse>> publicListing() {
-        //TODO rellena el cuerpo del método
-        return ResponseEntity.notFound().build();
-    }
 
     /*
     Yo como encargado de calidad quiero poder ver los anuncios irrelevantes y desde que fecha lo son para medir la calidad media del contenido del portal.
