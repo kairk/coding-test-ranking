@@ -53,20 +53,16 @@ public class AdsBusinessDefault implements AdsBusiness {
         }
 
         //This query could be huge, it should be done in batches
-        Collection<Advertisement> allAds = adsService.getAllAds();
-
-        List<Advertisement> updatedScoreAds = allAds.stream().map(ad -> ad.toBuilder()
-                .score(executor.getResult(ad))
-                .build()).collect(Collectors.toList());
+        Collection<Advertisement> updatedScoreAds = adsService.calculateScore(executor, adsService.getAllAds());
 
         adsService.upsertAdvertisements(updatedScoreAds);
     }
 
-    @Override
     /**
      * Returns a paginated list of Ads filtered and ordered by its quality score.
      * If the page * size is bigger than the actual list size it will return page 0
      */
+    @Override
     public List<PublicAdResponse> getPublicListing(int page, int size) {
         BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore >= minScore;
 
@@ -83,6 +79,10 @@ public class AdsBusinessDefault implements AdsBusiness {
         return mappedList;
     }
 
+    /**
+     * Returns a paginated list of Ads filtered and ordered by its quality score.
+     * If the page * size is bigger than the actual list size it will return page 0
+     */
     @Override
     public List<QualityAdResponse> getQualityListing(int page, int size) {
         BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore < minScore;

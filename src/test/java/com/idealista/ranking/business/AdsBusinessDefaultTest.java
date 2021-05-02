@@ -15,7 +15,6 @@ import com.idealista.ranking.model.service.enumeration.RuleType;
 import com.idealista.ranking.service.AdsService;
 import com.idealista.ranking.service.factory.RuleExecutorFactory;
 import com.idealista.ranking.service.score.executor.ScoreRuleExecutor;
-import com.idealista.ranking.service.score.rule.BaseScoreRule;
 import com.idealista.ranking.service.score.rule.HasDescriptionRule;
 import com.idealista.ranking.service.score.rule.NoPictureRule;
 import org.junit.Rule;
@@ -59,7 +58,7 @@ public class AdsBusinessDefaultTest {
     @Test
     public void calculateScore_OK() throws AdsServiceException {
         //Given
-        ScoreRuleExecutor ruleExecutor = new TestExecutor(Collections.singletonList(new HasDescriptionRule(1)));
+        ScoreRuleExecutor ruleExecutor = new ScoreRuleExecutor(Collections.singletonList(new HasDescriptionRule(1)));
 
         Score score = Score.builder().current(increment).build();
         List<Advertisement> ads = Arrays.asList(
@@ -74,6 +73,7 @@ public class AdsBusinessDefaultTest {
         );
 
         doReturn(ads).when(service).getAllAds();
+        doReturn(expected).when(service).calculateScore(ruleExecutor, ads);
         doNothing().when(service).upsertAdvertisements(anyCollection());
         doReturn(ruleExecutor).when(ruleExecutorFactory).create(eq(RuleType.SCORE));
 
@@ -148,13 +148,7 @@ public class AdsBusinessDefaultTest {
         exceptionRule.expect(isA(AdsNoContentException.class));
         exceptionRule.expectMessage("There are no public Ads matching criteria");
 
-        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore >= minScore;
-
         int pageSize = 5;
-
-        List<Advertisement> ads = new ArrayList<>();
-
-        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction);
 
         AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
@@ -197,8 +191,6 @@ public class AdsBusinessDefaultTest {
 
         List<Advertisement> ads = new ArrayList<>();
 
-        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction);
-
         AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
         //When
@@ -213,18 +205,6 @@ public class AdsBusinessDefaultTest {
                 .id(cId).score(Score.builder().current(10 * cId).build())
                 .build())
                 .collect(Collectors.toList());
-    }
-
-
-    private class TestExecutor extends ScoreRuleExecutor {
-        public TestExecutor(Collection<BaseScoreRule> rules) throws AdsServiceException {
-            super(rules);
-        }
-
-        @Override
-        protected Score executeRules(Collection<BaseScoreRule> rules, Advertisement ad) {
-            return ad.getScore().add(increment);
-        }
     }
 
     private class TestFailedExecutor extends RuleExecutor {
