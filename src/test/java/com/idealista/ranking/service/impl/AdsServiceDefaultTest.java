@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -166,12 +167,14 @@ public class AdsServiceDefaultTest {
         );
         List<AdVO> expected = adVOS.stream().filter(a -> a.getScore() >= minScore).collect(Collectors.toList());
 
+        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, score) -> currentScore >= score;
+
         when(repository.getAllAds()).thenReturn(adVOS);
 
         AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
 
         //When
-        Collection<Advertisement> result = adsService.getAdsFilterByScore(minScore);
+        Collection<Advertisement> result = adsService.getAdsFilterByScore(minScore, filterFunction);
 
         //Then
         assertEquals(expected.size(), result.size());

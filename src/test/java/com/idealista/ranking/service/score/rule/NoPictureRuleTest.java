@@ -2,7 +2,7 @@ package com.idealista.ranking.service.score.rule;
 
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Picture;
-import com.idealista.ranking.service.score.rule.NoPictureRule;
+import com.idealista.ranking.model.service.Score;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -16,7 +16,7 @@ public class NoPictureRuleTest {
         //Given
         Integer decrementValue = 10;
         NoPictureRule rule = new NoPictureRule(decrementValue);
-        Advertisement ad = Advertisement.builder().build();
+        Advertisement ad = Advertisement.builder().score(Score.builder().current(10).build()).build();
 
         //When
         Advertisement result = rule.executeRule(ad);

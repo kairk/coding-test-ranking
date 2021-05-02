@@ -8,6 +8,7 @@ import com.idealista.ranking.exception.AdsServiceException;
 import com.idealista.ranking.exception.GenericAdsException;
 import com.idealista.ranking.mapper.AdvertisementServiceMapper;
 import com.idealista.ranking.model.api.response.PublicAdResponse;
+import com.idealista.ranking.model.api.response.QualityAdResponse;
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.enumeration.RuleType;
 import com.idealista.ranking.service.AdsService;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,19 +68,10 @@ public class AdsBusinessDefault implements AdsBusiness {
      * If the page * size is bigger than the actual list size it will return page 0
      */
     public List<PublicAdResponse> getPublicListing(int page, int size) {
-        List<Advertisement> serviceAds = new ArrayList<>(adsService.getAdsFilterByScore(config.getMinScorePublicAds()));
+        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore >= minScore;
 
-
-        //By default PagedListHolder returns to page 0 when page * size is bigger than the actual list size.
-        PagedListHolder<Advertisement> adsPage = new PagedListHolder<>(serviceAds);
-
-        adsPage.setSort(new MutableSortDefinition("score.current", true, false));
-        //PagedListHolder does not sort source on initialization
-        adsPage.resort();
-
-        adsPage.setPage(page);
-        adsPage.setPageSize(size);
-
+        List<Advertisement> serviceAds = new ArrayList<>(adsService.getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction));
+        PagedListHolder<Advertisement> adsPage = getPageHolderSorted(page, size, serviceAds, "score.current", true);
 
         List<PublicAdResponse> mappedList = adsPage.getPageList().stream().map(mapper::adServiceToResponseMapper)
                 .collect(Collectors.toList());
@@ -88,6 +81,37 @@ public class AdsBusinessDefault implements AdsBusiness {
         }
 
         return mappedList;
+    }
+
+    @Override
+    public List<QualityAdResponse> getQualityListing(int page, int size) {
+        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore < minScore;
+
+        List<Advertisement> serviceAds = new ArrayList<>(adsService.getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction));
+        PagedListHolder<Advertisement> adsPage = getPageHolderSorted(page, size, serviceAds, "score.current", true);
+
+        List<QualityAdResponse> mappedList = adsPage.getPageList().stream().map(mapper::adServiceToQualityResponseMapper)
+                .collect(Collectors.toList());
+
+        if (mappedList.isEmpty()) {
+            throw new AdsNoContentException("There are no public Ads matching criteria");
+        }
+
+        return mappedList;
+
+    }
+
+    private PagedListHolder<Advertisement> getPageHolderSorted(int page, int size, List<Advertisement> serviceAds, String sortProperty, boolean ascending) {
+        //By default PagedListHolder returns to page 0 when page * size is bigger than the actual list size.
+        PagedListHolder<Advertisement> adsPage = new PagedListHolder<>(serviceAds);
+
+        adsPage.setSort(new MutableSortDefinition(sortProperty, true, ascending));
+        //PagedListHolder does not sort source on initialization
+        adsPage.resort();
+
+        adsPage.setPage(page);
+        adsPage.setPageSize(size);
+        return adsPage;
     }
 
     private ScoreRuleExecutor getCastedScoreExecutor() throws AdsServiceException {

@@ -8,6 +8,7 @@ import com.idealista.ranking.exception.AdsServiceException;
 import com.idealista.ranking.exception.GenericAdsException;
 import com.idealista.ranking.mapper.AdvertisementServiceMapper;
 import com.idealista.ranking.model.api.response.PublicAdResponse;
+import com.idealista.ranking.model.api.response.QualityAdResponse;
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Score;
 import com.idealista.ranking.model.service.enumeration.RuleType;
@@ -27,6 +28,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -120,14 +122,13 @@ public class AdsBusinessDefaultTest {
     }
 
     @Test
-    public void getPublicListing_OK() throws AdsServiceException {
+    public void getPublicListing_OK() {
         //Given
-        Score score = Score.builder().current(40).build();
         int pageSize = 5;
 
         List<Advertisement> ads = generateAdList(pageSize * 2);
 
-        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds());
+        when(service.getAdsFilterByScore(eq(config.getMinScorePublicAds()), any(BiFunction.class))).thenReturn(ads);
 
         AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
@@ -136,7 +137,7 @@ public class AdsBusinessDefaultTest {
 
         //Then
         assertEquals(pageSize, result.size());
-        verify(service, times(1)).getAdsFilterByScore(config.getMinScorePublicAds());
+        verify(service, times(1)).getAdsFilterByScore(eq(config.getMinScorePublicAds()), any(BiFunction.class));
         verify(mapper, times(pageSize)).adServiceToResponseMapper(any(Advertisement.class));
 
     }
@@ -147,24 +148,65 @@ public class AdsBusinessDefaultTest {
         exceptionRule.expect(isA(AdsNoContentException.class));
         exceptionRule.expectMessage("There are no public Ads matching criteria");
 
+        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore >= minScore;
+
         int pageSize = 5;
 
         List<Advertisement> ads = new ArrayList<>();
 
-        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds());
+        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction);
 
         AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
 
         //When
-        List<PublicAdResponse> result = business.getPublicListing(1, pageSize);
+        business.getPublicListing(1, pageSize);
 
         //Then exception is thrown
     }
 
-    private List<PublicAdResponse> generatePublicAdList(Integer id) {
-        return IntStream.range(0, id).mapToObj(cId -> PublicAdResponse.builder().id(cId).build())
-                .collect(Collectors.toList());
+    @Test
+    public void getQualityListing_OK() {
+        //Given
+        int pageSize = 5;
+
+        List<Advertisement> ads = generateAdList(pageSize * 2);
+
+        when(service.getAdsFilterByScore(eq(config.getMinScorePublicAds()), any(BiFunction.class))).thenReturn(ads);
+
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
+
+        //When
+        List<QualityAdResponse> result = business.getQualityListing(1, pageSize);
+
+        //Then
+        assertEquals(pageSize, result.size());
+        verify(service, times(1)).getAdsFilterByScore(eq(config.getMinScorePublicAds()), any(BiFunction.class));
+        verify(mapper, times(pageSize)).adServiceToQualityResponseMapper(any(Advertisement.class));
+
     }
+
+    @Test
+    public void getQualityListing_onEmptyResult_KO() throws AdsServiceException {
+        //Given
+        exceptionRule.expect(isA(AdsNoContentException.class));
+        exceptionRule.expectMessage("There are no public Ads matching criteria");
+
+        BiFunction<Integer, Integer, Boolean> filterFunction = (currentScore, minScore) -> currentScore >= minScore;
+
+        int pageSize = 5;
+
+        List<Advertisement> ads = new ArrayList<>();
+
+        doReturn(ads).when(service).getAdsFilterByScore(config.getMinScorePublicAds(), filterFunction);
+
+        AdsBusinessDefault business = new AdsBusinessDefault(config, ruleExecutorFactory, service, mapper);
+
+        //When
+        business.getQualityListing(1, pageSize);
+
+        //Then exception is thrown
+    }
+
 
     private List<Advertisement> generateAdList(Integer id) {
         return IntStream.range(0, id).mapToObj(cId -> Advertisement.builder()

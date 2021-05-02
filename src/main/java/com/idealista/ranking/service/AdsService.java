@@ -4,6 +4,7 @@ import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Picture;
 
 import java.util.Collection;
+import java.util.function.BiFunction;
 
 public interface AdsService {
     /**
@@ -17,5 +18,10 @@ public interface AdsService {
 
     void upsertPictures(Collection<Picture> pictures);
 
-    Collection<Advertisement> getAdsFilterByScore(Integer minScore);
+    /**
+     * Returns a collection of Advertisements filtered by applying the given function to the Ad filterScore
+     *
+     * @param filterFunction a function that compares the given filterScore to the Ad current score (filterFunction(currentScore, filterScore))
+     */
+    Collection<Advertisement> getAdsFilterByScore(Integer filterScore, BiFunction<Integer, Integer, Boolean> filterFunction);
 }

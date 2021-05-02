@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,10 +75,10 @@ public class AdsServiceDefault implements AdsService {
     }
 
     @Override
-    public Collection<Advertisement> getAdsFilterByScore(Integer minScore) {
+    public Collection<Advertisement> getAdsFilterByScore(Integer filterScore, BiFunction<Integer, Integer, Boolean> filter) {
         //Filtering by a property should by a query to the repository
         return getAllAds().stream()
-                .filter(ad -> ad.getScore().getCurrent() >= minScore)
+                .filter(ad -> filter.apply(ad.getScore().getCurrent(), filterScore))
                 .collect(Collectors.toList());
     }
 }

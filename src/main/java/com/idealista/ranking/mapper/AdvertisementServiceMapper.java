@@ -1,6 +1,7 @@
 package com.idealista.ranking.mapper;
 
 import com.idealista.ranking.model.api.response.PublicAdResponse;
+import com.idealista.ranking.model.api.response.QualityAdResponse;
 import com.idealista.ranking.model.repository.AdVO;
 import com.idealista.ranking.model.repository.PictureVO;
 import com.idealista.ranking.model.service.Advertisement;
@@ -24,6 +25,10 @@ public interface AdvertisementServiceMapper {
 
     @Mapping(target = "pictureUrls", source = "pictures", qualifiedByName = "pictureToUrlMapper")
     PublicAdResponse adServiceToResponseMapper(Advertisement ad);
+
+    @Mapping(target = "pictureUrls", source = "pictures", qualifiedByName = "pictureToUrlMapper")
+    @Mapping(target = "score", source = "score", qualifiedByName = "scoreToIntMapper")
+    QualityAdResponse adServiceToQualityResponseMapper(Advertisement ad);
 
     @Named("pictureToIntMapper")
     default List<Integer> pictureToInt(List<Picture> pictures) {
