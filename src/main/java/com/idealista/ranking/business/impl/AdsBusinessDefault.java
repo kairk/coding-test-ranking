@@ -71,12 +71,14 @@ public class AdsBusinessDefault implements AdsBusiness {
 
         //By default PagedListHolder returns to page 0 when page * size is bigger than the actual list size.
         PagedListHolder<Advertisement> adsPage = new PagedListHolder<>(serviceAds);
+
         adsPage.setSort(new MutableSortDefinition("score.current", true, false));
+        //PagedListHolder does not sort source on initialization
+        adsPage.resort();
+
         adsPage.setPage(page);
         adsPage.setPageSize(size);
 
-        //PagedListHolder does not sort source on initialization
-        adsPage.resort();
 
         List<PublicAdResponse> mappedList = adsPage.getPageList().stream().map(mapper::adServiceToResponseMapper)
                 .collect(Collectors.toList());

@@ -11,10 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -48,12 +45,8 @@ public class AdsController {
         log.info("Scores for all advertisements calculated correctly");
         return ResponseEntity.ok().build();
     }
-/*
-Yo como encargado de calidad quiero que los usuarios no vean anuncios irrelevantes para que el usuario siempre vea contenido de calidad en idealista. Un anuncio se considera irrelevante si tiene una puntación inferior a 40 puntos.
- Yo como usuario de idealista quiero poder ver los anuncios ordenados de mejor a peor para encontrar fácilmente mi vivienda.
- */
 
-    @PostMapping(path = "/public-listing", produces = MediaType.APPLICATION_JSON_VALUE)
+        @GetMapping(path = "/public-listing", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns a paginated list of Ads filtered by quality")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Advertisements found"),
