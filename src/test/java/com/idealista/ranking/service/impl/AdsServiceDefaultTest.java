@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -150,6 +151,32 @@ public class AdsServiceDefaultTest {
         //Then
         verify(serviceMapper, times(pictures.size())).pictureServiceToRepository(any(Picture.class));
         verify(repository, times(pictures.size())).upsertPicture(any(PictureVO.class));
+
+    }
+
+    @Test
+    public void getAdsFilterByScore_ok() {
+        //Given
+        int minScore = 40;
+        List<AdVO> adVOS = Arrays.asList(
+                AdVO.builder().id(1).score(50).build(),
+                AdVO.builder().id(2).score(40).build(),
+                AdVO.builder().id(3).score(30).build(),
+                AdVO.builder().id(4).score(20).build()
+        );
+        List<AdVO> expected = adVOS.stream().filter(a -> a.getScore() >= minScore).collect(Collectors.toList());
+
+        when(repository.getAllAds()).thenReturn(adVOS);
+
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
+
+        //When
+        Collection<Advertisement> result = adsService.getAdsFilterByScore(minScore);
+
+        //Then
+        assertEquals(expected.size(), result.size());
+        //All expected Ads are in the result list
+        assertTrue(expected.stream().allMatch(a -> result.stream().anyMatch(b -> b.getId().equals(a.getId()))));
 
     }
 

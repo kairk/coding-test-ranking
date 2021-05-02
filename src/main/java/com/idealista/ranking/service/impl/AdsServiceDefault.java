@@ -75,6 +75,9 @@ public class AdsServiceDefault implements AdsService {
 
     @Override
     public Collection<Advertisement> getAdsFilterByScore(Integer minScore) {
-        return null;
+        //Filtering by a property should by a query to the repository
+        return getAllAds().stream()
+                .filter(ad -> ad.getScore().getCurrent() >= minScore)
+                .collect(Collectors.toList());
     }
 }
