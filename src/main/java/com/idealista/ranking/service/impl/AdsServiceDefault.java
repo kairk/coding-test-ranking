@@ -3,11 +3,11 @@ package com.idealista.ranking.service.impl;
 import com.idealista.ranking.configuration.ScoreConfig;
 import com.idealista.ranking.mapper.AdvertisementRepositoryMapper;
 import com.idealista.ranking.mapper.AdvertisementServiceMapper;
-import com.idealista.ranking.model.repository.AdVO;
 import com.idealista.ranking.model.service.Advertisement;
 import com.idealista.ranking.model.service.Picture;
 import com.idealista.ranking.repository.InMemoryPersistence;
 import com.idealista.ranking.service.AdsService;
+import com.idealista.ranking.service.score.executor.ScoreRuleExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,11 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-//TODO: Picture and Ads should be managed by different services
 public class AdsServiceDefault implements AdsService {
 
     private final InMemoryPersistence repository;
@@ -39,14 +37,19 @@ public class AdsServiceDefault implements AdsService {
 
     @Override
     public Collection<Advertisement> getAllAds() {
-        List<AdVO> repositoryAds = repository.getAllAds();
-
-        return repositoryAds.stream()
+        return repository.getAllAds().stream()
                 .map(repoAd -> repositoryMapper.adRepositoryToService(repoAd).toBuilder()
                         .pictures(new ArrayList<>(getPicturesIn(repoAd.getPictures())))
                         .score(repositoryMapper.scoreRepositoryToService(scoreConfig, repoAd.getScore()))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<Advertisement> calculateScore(ScoreRuleExecutor scoreExecutor, Collection<Advertisement> ads) {
+        return ads.stream().map(ad -> ad.toBuilder()
+                .score(scoreExecutor.getResult(ad))
+                .build()).collect(Collectors.toList());
     }
 
     @Override

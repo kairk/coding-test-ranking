@@ -1,6 +1,7 @@
 package com.idealista.ranking.service.impl;
 
 import com.idealista.ranking.configuration.ScoreConfig;
+import com.idealista.ranking.exception.AdsServiceException;
 import com.idealista.ranking.mapper.AdvertisementRepositoryMapper;
 import com.idealista.ranking.mapper.AdvertisementServiceMapper;
 import com.idealista.ranking.model.repository.AdVO;
@@ -10,6 +11,9 @@ import com.idealista.ranking.model.service.Picture;
 import com.idealista.ranking.model.service.Score;
 import com.idealista.ranking.model.service.enumeration.AdvertisementTypology;
 import com.idealista.ranking.repository.InMemoryPersistence;
+import com.idealista.ranking.service.score.executor.ScoreRuleExecutor;
+import com.idealista.ranking.service.score.rule.BaseScoreRule;
+import com.idealista.ranking.service.score.rule.HasDescriptionRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mapstruct.factory.Mappers;
@@ -183,6 +187,21 @@ public class AdsServiceDefaultTest {
 
     }
 
+    @Test
+    public void calculateScore_ok() throws AdsServiceException {
+        //Given
+        List<BaseScoreRule> rules = Collections.singletonList(new HasDescriptionRule(1));
+        List<Advertisement> ads = Collections.singletonList(Advertisement.builder().build());
+
+        ScoreRuleExecutor executor = new TestExecutor(rules);
+        AdsServiceDefault adsService = new AdsServiceDefault(repository, serviceMapper, repositoryMapper, scoreConfig);
+
+        //When
+        Collection<Advertisement> result = adsService.calculateScore(executor, ads);
+
+        //Then
+        assertTrue(result.stream().allMatch(a -> a.getScore().getCurrent() == 10));
+    }
 
     private List<PictureVO> getRepositoryPics() {
         return Arrays.asList(
@@ -199,4 +218,16 @@ public class AdsServiceDefaultTest {
                 AdVO.builder().id(3).build()
         );
     }
+
+    private class TestExecutor extends ScoreRuleExecutor {
+        public TestExecutor(Collection<BaseScoreRule> rules) throws AdsServiceException {
+            super(rules);
+        }
+
+        @Override
+        protected Score executeRules(Collection<BaseScoreRule> rules, Advertisement ad) {
+            return ad.getScore().add(10);
+        }
+    }
+
 }

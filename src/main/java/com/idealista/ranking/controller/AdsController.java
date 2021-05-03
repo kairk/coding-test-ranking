@@ -47,7 +47,7 @@ public class AdsController {
     }
 
     @GetMapping(path = "/public-listing", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns a paginated list of Ads filtered by quality")
+    @ApiOperation(value = "Returns a paginated list of Ads filtered for public listing (score above a minimum)")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Advertisements found"),
             @ApiResponse(code = HttpServletResponse.SC_NO_CONTENT, message = "No advertisements found that match criteria"),
@@ -60,7 +60,7 @@ public class AdsController {
     }
 
     @GetMapping(path = "/quality-listing", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns a paginated list of Ads filtered by quality")
+    @ApiOperation(value = "Returns a paginated list of Ads filtered for quality listing (score below the minimum set)")
     @ApiResponses({
             @ApiResponse(code = HttpServletResponse.SC_OK, message = "Advertisements found"),
             @ApiResponse(code = HttpServletResponse.SC_NO_CONTENT, message = "No advertisements found that match criteria"),
