@@ -1,0 +1,21 @@
+service:
+  rule:
+    value:
+      noPicture: 10
+      hdPicture: 20
+      defaultQualityPicture: 10
+      hasDescription: 5
+      flatDescriptionLowerBound: 10
+      flatDescriptionUpperBound: 30
+      chaletDescriptionLowerBound: 20
+      wordOccurence: 5
+      completeInfo: 40
+    constraint:
+      flatDescriptionLowerBound: 20
+      flatDescriptionUpperBound: 50
+      chaletDescriptionLowerBound: 50
+      wordOccurrence: Atico, Luminoso, Nuevo, Céntrico, Reformado
+  score:
+    max: 100
+    min: 0
+  minScorePublicAds: 40
